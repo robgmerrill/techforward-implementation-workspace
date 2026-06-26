@@ -61,6 +61,21 @@ const emptyCustomerForm: CustomerFormData = {
   primaryAdminEmail: "",
 };
 
+function getCustomerFormData(customer?: Customer): CustomerFormData {
+  if (!customer) {
+    return emptyCustomerForm;
+  }
+
+  return {
+    employeeCount:
+      customer.employeeCount !== undefined ? String(customer.employeeCount) : "",
+    goLiveDate: customer.goLiveDate ?? "",
+    status: customer.status ?? "",
+    primaryAdminName: customer.primaryAdminName ?? "",
+    primaryAdminEmail: customer.primaryAdminEmail ?? "",
+  };
+}
+
 function formatDate(date?: string) {
   if (!date) {
     return "Not set";
@@ -75,6 +90,7 @@ function formatDate(date?: string) {
 }
 
 export default function Home() {
+  const [showDemo, setShowDemo] = useState(false);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [trainingPaths, setTrainingPaths] = useState<TrainingPath[]>([]);
@@ -134,6 +150,7 @@ export default function Home() {
 
         if (firstCustomer) {
           setSelectedCustomerId(firstCustomer.id);
+          setCustomerForm(getCustomerFormData(firstCustomer));
         }
       } catch (error) {
         console.error(error);
@@ -149,26 +166,6 @@ export default function Home() {
   const customer = customers.find(
     (currentCustomer) => currentCustomer.id === selectedCustomerId,
   );
-
-  useEffect(() => {
-    if (!customer) {
-      setCustomerForm(emptyCustomerForm);
-      return;
-    }
-
-    setCustomerForm({
-      employeeCount:
-        customer.employeeCount !== undefined
-          ? String(customer.employeeCount)
-          : "",
-      goLiveDate: customer.goLiveDate ?? "",
-      status: customer.status ?? "",
-      primaryAdminName: customer.primaryAdminName ?? "",
-      primaryAdminEmail: customer.primaryAdminEmail ?? "",
-    });
-
-    setSaveMessage("");
-  }, [customer]);
 
   const filteredEmployees = employees.filter((employee) =>
     employee.customerIds.includes(selectedCustomerId),
@@ -208,6 +205,16 @@ export default function Home() {
     );
 
     return trainingPath?.name ?? "Unknown training path";
+  }
+
+  function handleCustomerSelect(customerId: string) {
+    const selectedCustomer = customers.find(
+      (currentCustomer) => currentCustomer.id === customerId,
+    );
+
+    setSelectedCustomerId(customerId);
+    setCustomerForm(getCustomerFormData(selectedCustomer));
+    setSaveMessage("");
   }
 
   async function handleCustomerSave(event: FormEvent<HTMLFormElement>) {
@@ -262,6 +269,157 @@ export default function Home() {
     }
   }
 
+  if (!showDemo) {
+    return (
+      <main className="min-h-screen bg-slate-100 px-6 py-8 text-slate-900 sm:px-8">
+        <section className="mx-auto flex max-w-6xl flex-col gap-12">
+          <header className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white/80 px-5 py-4 shadow-sm">
+            <p className="text-sm font-semibold text-slate-900">
+              TechForward Implementation Workspace
+            </p>
+
+            <p className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-blue-700">
+              Demo
+            </p>
+          </header>
+
+          <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
+            <section className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm sm:p-10">
+              <p className="text-sm font-semibold uppercase tracking-wide text-blue-700">
+                Customer Implementation Simulation
+              </p>
+
+              <h1 className="mt-4 max-w-3xl text-4xl font-bold tracking-tight text-slate-950 sm:text-5xl">
+                TechForward Implementation Workspace
+              </h1>
+
+              <p className="mt-5 max-w-3xl text-xl font-medium leading-8 text-slate-700">
+                A customer onboarding workspace for configuring implementation
+                details, importing employee data, and assigning training paths.
+              </p>
+
+              <p className="mt-5 max-w-2xl leading-7 text-slate-600">
+                This project simulates how an implementation consultant might
+                support a customer rollout for an employee training platform
+                using Airtable-backed workflows.
+              </p>
+
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                <button
+                  type="button"
+                  onClick={() => setShowDemo(true)}
+                  className="rounded-lg bg-blue-700 px-5 py-3 text-center font-semibold text-white shadow-sm hover:bg-blue-800"
+                >
+                  Enter Demo
+                </button>
+
+                <a
+                  href="https://github.com/robgmerrill/techforward-implementation-workspace"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="rounded-lg border border-slate-300 bg-white px-5 py-3 text-center font-semibold text-slate-700 shadow-sm hover:border-blue-200 hover:text-blue-700"
+                >
+                  View GitHub
+                </a>
+
+                <a
+                  href="https://github.com/robgmerrill/techforward-implementation-workspace/blob/main/docs/case-study.md"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="rounded-lg border border-slate-300 bg-white px-5 py-3 text-center font-semibold text-slate-700 shadow-sm hover:border-blue-200 hover:text-blue-700"
+                >
+                  View Case Study
+                </a>
+
+                <a
+                  href="https://github.com/robgmerrill/techforward-implementation-workspace/blob/main/docs/implementation-notes.md"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="rounded-lg border border-slate-300 bg-white px-5 py-3 text-center font-semibold text-slate-700 shadow-sm hover:border-blue-200 hover:text-blue-700"
+                >
+                  View Implementation Notes
+                </a>
+              </div>
+            </section>
+
+            <aside className="space-y-5">
+              <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+                <h2 className="text-lg font-semibold">Workflow Context</h2>
+
+                <p className="mt-3 leading-7 text-slate-600">
+                  This project demonstrates how customer onboarding data can
+                  move from scattered spreadsheets and manual setup tasks into a
+                  structured implementation workspace.
+                </p>
+
+                <ul className="mt-5 space-y-3 text-sm text-slate-700">
+                  <li className="flex gap-3">
+                    <span className="mt-2 h-2 w-2 rounded-full bg-blue-600" />
+                    <span>Configure customer onboarding details</span>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="mt-2 h-2 w-2 rounded-full bg-blue-600" />
+                    <span>Import employee records from CSV</span>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="mt-2 h-2 w-2 rounded-full bg-blue-600" />
+                    <span>Link employees to the correct customer</span>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="mt-2 h-2 w-2 rounded-full bg-blue-600" />
+                    <span>Assign training paths</span>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="mt-2 h-2 w-2 rounded-full bg-blue-600" />
+                    <span>Track implementation progress</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+                <h2 className="text-lg font-semibold">
+                  What This Project Demonstrates
+                </h2>
+
+                <ul className="mt-5 grid gap-3 text-sm text-slate-700 sm:grid-cols-2 lg:grid-cols-1">
+                  <li className="rounded-lg bg-slate-50 px-3 py-2">
+                    Customer-facing implementation workflow design
+                  </li>
+                  <li className="rounded-lg bg-slate-50 px-3 py-2">
+                    Airtable data modeling and linked records
+                  </li>
+                  <li className="rounded-lg bg-slate-50 px-3 py-2">
+                    CSV import and validation
+                  </li>
+                  <li className="rounded-lg bg-slate-50 px-3 py-2">
+                    Next.js API route integration
+                  </li>
+                  <li className="rounded-lg bg-slate-50 px-3 py-2">
+                    Product configuration workflows
+                  </li>
+                  <li className="rounded-lg bg-slate-50 px-3 py-2">
+                    Technical documentation and demo storytelling
+                  </li>
+                </ul>
+              </div>
+
+              <div className="rounded-3xl border border-blue-100 bg-blue-50 p-6 shadow-sm">
+                <h2 className="text-lg font-semibold text-blue-950">
+                  Important Note
+                </h2>
+
+                <p className="mt-3 leading-7 text-blue-900">
+                  This is a portfolio simulation of a customer implementation
+                  workspace. It is not a production SaaS product.
+                </p>
+              </div>
+            </aside>
+          </div>
+        </section>
+      </main>
+    );
+  }
+
   if (isLoading) {
     return (
       <main className="min-h-screen bg-slate-100 p-8 text-slate-900">
@@ -309,7 +467,7 @@ export default function Home() {
 
             <select
               value={selectedCustomerId}
-              onChange={(event) => setSelectedCustomerId(event.target.value)}
+              onChange={(event) => handleCustomerSelect(event.target.value)}
               className="rounded-lg border border-slate-300 bg-white px-4 py-3 text-slate-900 shadow-sm"
             >
               {customers.map((currentCustomer) => (
