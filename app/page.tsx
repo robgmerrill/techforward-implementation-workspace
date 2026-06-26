@@ -1,6 +1,9 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
+import EmployeeCsvImport from "./components/EmployeeCsvImport";
+import TrainingAssignmentForm from "./components/TrainingAssignmentForm";
+import StatusBadge from "./components/StatusBadge";
 
 type Customer = {
   id: string;
@@ -57,6 +60,19 @@ const emptyCustomerForm: CustomerFormData = {
   primaryAdminName: "",
   primaryAdminEmail: "",
 };
+
+function formatDate(date?: string) {
+  if (!date) {
+    return "Not set";
+  }
+
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(new Date(date));
+}
 
 export default function Home() {
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -308,9 +324,10 @@ export default function Home() {
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
             <p className="text-sm text-slate-500">Status</p>
-            <p className="mt-2 text-xl font-semibold">
-              {customer.status ?? "Not set"}
-            </p>
+
+            <div className="mt-3">
+              <StatusBadge status={customer.status} />
+            </div>
           </div>
 
           <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -339,7 +356,7 @@ export default function Home() {
           <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
             <p className="text-sm text-slate-500">Target Go-Live</p>
             <p className="mt-2 text-xl font-semibold">
-              {customer.goLiveDate ?? "Not set"}
+              {formatDate(customer.goLiveDate)}
             </p>
           </div>
 
@@ -478,6 +495,17 @@ export default function Home() {
           </div>
         </form>
 
+        <EmployeeCsvImport
+          customerId={customer.id}
+          customerName={customer.name}
+          onEmployeesImported={(importedEmployees) => {
+            setEmployees((currentEmployees) => [
+              ...currentEmployees,
+              ...importedEmployees,
+            ]);
+          }}
+        />
+
         <div className="mt-6 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
           <div className="border-b border-slate-200 p-5">
             <h2 className="text-lg font-semibold">Imported Employees</h2>
@@ -529,7 +557,7 @@ export default function Home() {
                       </td>
 
                       <td className="px-5 py-4">
-                        {employee.status ?? "Not set"}
+                        <StatusBadge status={employee.status} />
                       </td>
                     </tr>
                   ))}
@@ -538,6 +566,18 @@ export default function Home() {
             </div>
           )}
         </div>
+
+        <TrainingAssignmentForm
+          employees={filteredEmployees}
+          trainingPaths={trainingPaths}
+          customerName={customer.name}
+          onAssignmentCreated={(assignment) => {
+            setAssignments((currentAssignments) => [
+              ...currentAssignments,
+              assignment,
+            ]);
+          }}
+        />
 
         <div className="mt-6 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
           <div className="border-b border-slate-200 p-5">
@@ -579,11 +619,11 @@ export default function Home() {
                       </td>
 
                       <td className="px-5 py-4">
-                        {assignment.status ?? "Not set"}
+                        <StatusBadge status={assignment.status} />
                       </td>
 
                       <td className="px-5 py-4">
-                        {assignment.assignedDate ?? "Not set"}
+                        {formatDate(assignment.assignedDate)}
                       </td>
                     </tr>
                   ))}
