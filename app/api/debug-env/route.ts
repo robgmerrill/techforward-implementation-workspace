@@ -1,0 +1,12 @@
+import { NextResponse } from "next/server";
+
+export async function GET() {
+  return NextResponse.json({
+    AIRTABLE_BASE_ID: process.env.AIRTABLE_BASE_ID,
+    AIRTABLE_CUSTOMERS_TABLE: process.env.AIRTABLE_CUSTOMERS_TABLE,
+    AIRTABLE_EMPLOYEES_TABLE: process.env.AIRTABLE_EMPLOYEES_TABLE,
+    AIRTABLE_TRAINING_PATHS_TABLE: process.env.AIRTABLE_TRAINING_PATHS_TABLE,
+    AIRTABLE_ASSIGNMENTS_TABLE: process.env.AIRTABLE_ASSIGNMENTS_TABLE,
+    AIRTABLE_API_KEY_EXISTS: !!process.env.AIRTABLE_API_KEY,
+  });
+}
